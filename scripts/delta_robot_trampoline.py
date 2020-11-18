@@ -27,6 +27,7 @@ class Omnid_Simulator:
 
   def loadBall(self):
       self.ball = p.loadURDF("soccerball.urdf",[0,0,0.6], globalScaling=0.1)
+      p.changeDynamics(self.ball,-1,linearDamping=0, angularDamping=0, rollingFriction=0.01, spinningFriction=0.001)
 
 
   # def jointStatesPub(self):
