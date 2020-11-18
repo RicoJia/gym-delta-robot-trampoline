@@ -16,5 +16,5 @@ The trampoline bounces a ball using a delta arm trained by DDPG! We also have in
 3. To see the model, do
 ```$ python3 delta_robot_trampoline.py```
 Then, you should be able to see the delta robot in PyBullet. 
-<img align="middle" src="media/model.gif" width="300px"/>
+<img src="media/model.gif" width="300px"/>
 
