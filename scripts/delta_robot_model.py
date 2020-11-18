@@ -31,13 +31,13 @@ class Delta_Robot_Model:
       self.upper_leg_names = {1: "upper_leg_1", 2: "upper_leg_2", 3: "upper_leg_3"}
       self.upper_leg_length = 0.368
       self.leg_pos_on_end_effector = {"upper_leg_1": 0.0, "upper_leg_2": 2.0*np.pi/3.0, "upper_leg_3": 4.0*np.pi/3.0} #angular positions of upper legs on the platform
-      self.after_spring_joint_vals = {"theta_1": 0.2, "theta_2": 0.2, "theta_3": 0.2} #name of the after_spring_joint: joint_initial_value
+      self.after_spring_joint_vals = {"theta_1": 0.0, "theta_2": 0.0, "theta_3": 0.0} #name of the after_spring_joint: joint_initial_value
 
       self.end_effector_name = "platform_link"
-      self.end_effector_home_xyz = [0.0, 0.0, 0.3]
+      self.end_effector_home_vals = {"x": 0.0, "y": 0.0, "z": 0.095}
 
       # joints to be initialized
-      self.init_joint_values = {**self.after_spring_joint_vals}
+      self.init_joint_values = {**self.after_spring_joint_vals, **self.end_effector_home_vals}
       self.motorDict = {**self.after_spring_joint_vals}
 
   def buildLookups(self):
@@ -114,32 +114,28 @@ class Delta_Robot_Model:
 
 
 # ########################## Helpers ##########################
-#   def setMotorValueByName(self, motorName, desiredValue):
-#     """
-#     Joint Position Control using PyBullet's Default joint angle control
-#     :param motorName: string, motor name
-#     :param desiredValue: float, angle value
-#     """
-#     motorId=self.jointNameToId[motorName]
-#     p.setJointMotorControl2(bodyIndex=self.model_unique_id,
-#                           jointIndex=motorId,
-#                           controlMode=p.POSITION_CONTROL,
-#                           targetPosition=desiredValue,
-#                           positionGain=self.kp,
-#                           velocityGain=self.kd,
-#                           force=self.max_motor_force)
-#
-#   def executeAllMotorPosCommands(self):
-#     """
-#     This is a helper function that executes all motor position commands in self.motorDict
-#     """
-#     if self.use_spring:
-#         for spring_id in range(1, self.leg_num + 1):
-#             self.spring_models[spring_id].apply_spring_torque()
-#
-#     for name, value in self.motorDict.items():
-#       self.setMotorValueByName(name, value)
-#
+  def setMotorValueByName(self, motorName, desiredValue):
+    """
+    Joint Position Control using PyBullet's Default joint angle control
+    :param motorName: string, motor name
+    :param desiredValue: float, angle value
+    """
+    motorId=self.jointNameToId[motorName]
+    p.setJointMotorControl2(bodyIndex=self.model_unique_id,
+                          jointIndex=motorId,
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=desiredValue,
+                          positionGain=self.kp,
+                          velocityGain=self.kd,
+                          force=self.max_motor_force)
+
+  def executeAllMotorPosCommands(self):
+    """
+    This is a helper function that executes all motor position commands in self.motorDict
+    """
+    for name, value in self.motorDict.items():
+      self.setMotorValueByName(name, value)
+
 #   def returnJointStateMsg(self):
 #       """
 #       Publish joint states. Note that effort is the motor torque applied during the last stepSimulation.
