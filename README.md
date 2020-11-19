@@ -19,5 +19,9 @@ Now, you should be able to see the delta robot starting at home position,
 where each lower leg is touching the ground, and the soccer ball is right on 
 top of the platform. 
 
-![](media/model_1.png)
+    ![](media/model_1.png)
+4. to see the effect of different joint torques in the model with slider bars, do 
+```$ python3 delta_robot_trampoline.py -t```
+or 
+```$ python3 delta_robot_trampoline.py --test```
 

@@ -8,6 +8,7 @@ sys.path.append(".")
 import pybullet as p
 import time
 import os
+import sys, getopt
 
 #Libraries for PyBullet
 import pybullet as p
@@ -59,7 +60,26 @@ class Omnid_Simulator:
   def applyJointTorque(self, torqueDict=None):
     self.omnid_model.applyJointTorque(torqueDict)
 
-def model_test_setup(test_model, max_joint_torque):
+def checkCommandLine(argv):
+    test_model = None
+    try:
+        opts, args = getopt.getopt(argv,"ht",["help", "test"])
+    except getopt.GetoptError:
+        print ('Please see -h or --help for help')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            print ('-t or --test is for testing the PyBullet model with a slider bar. If the input arg is empty, we are going to launch the environment')
+            sys.exit(1)
+        elif opt in ("-t", "--test"):
+            test_model = True
+        else:
+            test_model = False
+    return test_model
+
+
+
+def modelTestSetup(test_model, max_joint_torque):
     if not test_model:
         return None
     else:
@@ -69,6 +89,7 @@ def model_test_setup(test_model, max_joint_torque):
         return debug_tools
 
 if __name__ == "__main__":
+    test_model = checkCommandLine(sys.argv[1:])
     c = p.connect(p.SHARED_MEMORY)
     if (c < 0):
         c = p.connect(p.GUI)
@@ -90,8 +111,7 @@ if __name__ == "__main__":
     omnid_simulator.attachBallToRobot() # we want the robot to land safely onto the robot.
 
     #setup user debug tools if needed
-    test_model = True
-    debug_tools = model_test_setup(test_model, max_joint_torque)
+    debug_tools = modelTestSetup(test_model, max_joint_torque)
 
     while p.isConnected():
       omnid_simulator.updateStates()

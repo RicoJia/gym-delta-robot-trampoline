@@ -12,7 +12,7 @@ class Ball:
         self.reset(urdf_name, base_position)
 
     def reset(self,urdf_name, base_position):
-        self.model_unique_id = p.loadURDF(self.urdfRootPath + "/" + urdf_name , basePosition=base_position, globalScaling=0.1)
+        self.model_unique_id = p.loadURDF(urdf_name , basePosition=base_position, globalScaling=0.1)
         p.changeVisualShape(self.model_unique_id,-1,rgbaColor=[0.8,0.8,0.8,1])
         self.buildParamLists()
 
