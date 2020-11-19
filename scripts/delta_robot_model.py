@@ -129,12 +129,39 @@ class Delta_Robot_Model:
                           velocityGain=self.kd,
                           force=self.max_motor_force)
 
-  def executeAllMotorPosCommands(self):
-    """
-    This is a helper function that executes all motor position commands in self.motorDict
-    """
-    for name, value in self.motorDict.items():
-      self.setMotorValueByName(name, value)
+  def applyJointTorque(self, torqueDict):
+      """
+      This is reserved for training.
+      """
+      after_spring_joint_ids = [self.jointNameToId[name] for name in torqueDict]
+      p.setJointMotorControlArray(
+                      bodyIndex=self.model_unique_id,
+                      jointIndices=after_spring_joint_ids,
+                      controlMode=p.TORQUE_CONTROL,
+                      forces= torqueDict.values()
+      )
+
+  def getActuatedJointStates(self):
+      joint_pos = {}
+      joint_vel = {}
+      for joint_name in self.motorDict.keys():
+          joint_state = p.getJointState(bodyUniqueId = self.model_unique_id, jointIndex=self.jointNameToId[joint_name])
+          joint_pos[joint_name] = joint_state[0]
+          joint_vel[joint_name] = joint_state[1]
+      return (joint_pos, joint_vel)
+
+  def getEndEffectorStates(self):
+      link_state = p.getLinkState(bodyUniqueId = self.model_unique_id, linkIndex = self.linkNameToID[self.end_effector_name], computeLinkVelocity=1)
+      link_pos = link_state[0]
+      link_vel = link_state[6]
+      return (link_pos, link_vel)
+
+  # def executeAllMotorPosCommands(self):
+  #   """
+  #   This is a helper function that executes all motor position commands in self.motorDict
+  #   """
+  #   for name, value in self.motorDict.items():
+  #     self.setMotorValueByName(name, value)
 
 #   def returnJointStateMsg(self):
 #       """
