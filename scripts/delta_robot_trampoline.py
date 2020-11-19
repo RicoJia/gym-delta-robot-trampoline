@@ -59,6 +59,14 @@ class Omnid_Simulator:
   def applyJointTorque(self, torqueDict=None):
     self.omnid_model.applyJointTorque(torqueDict)
 
+def model_test_setup(test_model, max_joint_torque):
+    if not test_model:
+        return None
+    else:
+        debug_tools = []
+        for i in range(1,4):
+            debug_tools.append(p.addUserDebugParameter('theta_'+str(i)+'_torque', -max_joint_torque , max_joint_torque , 0))
+        return debug_tools
 
 if __name__ == "__main__":
     c = p.connect(p.SHARED_MEMORY)
@@ -68,18 +76,23 @@ if __name__ == "__main__":
     p.resetSimulation()
     p.loadURDF("plane.urdf" )  #loads from the root pybullet library
     p.setGravity(0, 0, -10.0)
-    urdf_path = os.path.join(os.getcwd(),'../urdf')
-    print(urdf_path)
-    omnid_simulator = Omnid_Simulator(urdf_path)
-    #
     p.setRealTimeSimulation(0)
 
-    global joint_values
+    #set up the robot and the ball
+    urdf_path = os.path.join(os.getcwd(),'../urdf')
+    print(urdf_path)
+    max_joint_torque = 500
+    omnid_simulator = Omnid_Simulator(urdf_path)
     timeStep = 0.0005
     p.setTimeStep(timeStep)
     total_step = 0
     initialized = False
     omnid_simulator.attachBallToRobot() # we want the robot to land safely onto the robot.
+
+    #setup user debug tools if needed
+    test_model = True
+    debug_tools = model_test_setup(test_model, max_joint_torque)
+
     while p.isConnected():
       omnid_simulator.updateStates()
       if not initialized:
@@ -87,8 +100,9 @@ if __name__ == "__main__":
               omnid_simulator.detachBallFromRobot() #now we can let the ball move freely!
               initialized = True
               print("initialized")
-    #
-      torqueDict = {"theta_1": 0, "theta_2": 0, "theta_3": 0}
+
+      torqueDict = {"theta_1": 0, "theta_2": 0, "theta_3": 0} if not test_model else \
+          {"theta_1": p.readUserDebugParameter(debug_tools[0]), "theta_2": p.readUserDebugParameter(debug_tools[1]), "theta_3": p.readUserDebugParameter(debug_tools[2])}
       omnid_simulator.applyJointTorque(torqueDict)
       total_step += 1
       p.stepSimulation()
