@@ -64,31 +64,7 @@ line program has not been written
       </geometry>
     </collision>
   </link>
-  <link name="world">
-    <visual>
-      <!-- shift the visual so that the link frame is at one end of the cylinder, and
-           rotate it so that it matches the proper axis alignment -->
-      <origin rpy="0 -1.57079632679 0" xyz="5e-06 0 0"/>
-      <geometry>
-        <cylinder length="1e-05" radius="1e-05"/>
-      </geometry>
-      <material name="base_color"/>
-    </visual>
-    <!--    <origin xyz="${0 if axis == 'z' else h/2.0} 0 ${h/2.0 if axis == 'z' else 0}" rpy="0 ${0 if axis == 'z' else -pi/2.0} 0" />-->
-    <inertial>
-      <mass value="1e-05"/>
-      <!-- shift the origin to the center of the link from the end. how this is done depends on if
-      the cylinder is x aligned or z aligned-->
-      <!--      <origin xyz="${0 if axis =='z' else h/2.0} 0 ${h/2.0 if axis=='z' else 0}" rpy="0 0 0" />-->
-      <inertia ixx="5e-16" ixy="0" ixz="0" iyy="3.33333333333e-16" iyz="0" izz="3.33333333333e-16"/>
-    </inertial>
-    <collision>
-      <origin rpy="0 -1.57079632679 0" xyz="5e-06 0 0"/>
-      <geometry>
-        <cylinder length="1e-05" radius="1e-05"/>
-      </geometry>
-    </collision>
-  </link>
+  <link name="world"/>
   <!-- connect the base to the world -->
   <joint name="fixed" type="fixed">
     <parent link="world"/>

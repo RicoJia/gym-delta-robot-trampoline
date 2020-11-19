@@ -185,12 +185,7 @@ line program has not been written
                          mat="heart_pink" />
 
 
-  <xacro:cylinder_link name="world"
-                       M="1e-5"
-                       R="1e-5"
-                       h="1e-5"
-                       axis="x"
-                       mat="base_color" />
+  <link name="world"/>
 
   <!-- connect the base to the world -->
   <joint name="fixed" type="fixed">

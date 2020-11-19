@@ -81,7 +81,7 @@ if __name__ == "__main__":
     #set up the robot and the ball
     urdf_path = os.path.join(os.getcwd(),'../urdf')
     print(urdf_path)
-    max_joint_torque = 500
+    max_joint_torque = 100
     omnid_simulator = Omnid_Simulator(urdf_path)
     timeStep = 0.0005
     p.setTimeStep(timeStep)
