@@ -1,11 +1,8 @@
 README.md
 setup.py
+delta_robot_trampoline/__init__.py
 delta_robot_trampoline.egg-info/PKG-INFO
 delta_robot_trampoline.egg-info/SOURCES.txt
 delta_robot_trampoline.egg-info/dependency_links.txt
 delta_robot_trampoline.egg-info/requires.txt
 delta_robot_trampoline.egg-info/top_level.txt
-resources/__init__.py
-resources/ball.py
-resources/delta_robot_model.py
-resources/delta_robot_trampoline.py
