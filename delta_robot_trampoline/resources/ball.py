@@ -5,14 +5,15 @@ The Delta Arm Model
 
 import pybullet as p
 import numpy as np
+import os
 
 class Ball:
-    def __init__(self, urdfRootPath, urdf_name, base_position = [0,0,0]):
-        self.urdfRootPath = urdfRootPath
+    def __init__(self, urdf_name, base_position = [0,0,0]):
         self.reset(urdf_name, base_position)
 
     def reset(self,urdf_name, base_position):
-        self.model_unique_id = p.loadURDF(urdf_name , basePosition=base_position, globalScaling=0.1)
+        urdf_name = os.path.join(os.path.dirname(__file__), urdf_name)
+        self.model_unique_id = p.loadURDF(urdf_name, basePosition=base_position, globalScaling=0.1)
         p.changeVisualShape(self.model_unique_id,-1,rgbaColor=[0.8,0.8,0.8,1])
         self.buildParamLists()
 

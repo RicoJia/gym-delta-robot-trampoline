@@ -14,18 +14,18 @@ import sys, getopt
 import pybullet as p
 import numpy as np
 import pybullet_data
-from delta_robot_model import Delta_Robot_Model
-from ball import Ball
+from delta_robot_trampoline.resources.delta_robot_model import Delta_Robot_Model
+from delta_robot_trampoline.resources.ball import Ball
 
 
 class Omnid_Simulator:
-  def __init__(self, urdf_path):
-      self.omnid_model = Delta_Robot_Model(urdfRootPath=urdf_path,
+  def __init__(self):
+      self.omnid_model = Delta_Robot_Model(
                                          urdf_name = "delta_robot_pybullet.urdf",
                                          base_position = [0,0,0.046375]    #we have -0.046375 as our base offset, due to the setup in URDF
                                          )
 
-      self.ball_model = Ball(urdfRootPath=urdf_path,
+      self.ball_model = Ball(
                              urdf_name = "soccerball.urdf",
                              base_position = [0,0,0.8]
                              )
@@ -88,8 +88,10 @@ def modelTestSetup(test_model, max_joint_torque):
             debug_tools.append(p.addUserDebugParameter('theta_'+str(i)+'_torque', -max_joint_torque , max_joint_torque , 0))
         return debug_tools
 
-if __name__ == "__main__":
-    test_model = checkCommandLine(sys.argv[1:])
+def test_robot():
+    #TODO
+    # test_model = checkCommandLine(sys.argv[1:])
+    test_model = True
     c = p.connect(p.SHARED_MEMORY)
     if (c < 0):
         c = p.connect(p.GUI)
@@ -100,10 +102,8 @@ if __name__ == "__main__":
     p.setRealTimeSimulation(0)
 
     #set up the robot and the ball
-    urdf_path = os.path.join(os.getcwd(),'../urdf')
-    print(urdf_path)
     max_joint_torque = 100
-    omnid_simulator = Omnid_Simulator(urdf_path)
+    omnid_simulator = Omnid_Simulator()
     timeStep = 0.0005
     p.setTimeStep(timeStep)
     total_step = 0
@@ -126,3 +126,6 @@ if __name__ == "__main__":
       omnid_simulator.applyJointTorque(torqueDict)
       total_step += 1
       p.stepSimulation()
+
+if __name__ == "__main__":
+    test_robot()

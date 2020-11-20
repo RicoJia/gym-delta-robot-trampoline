@@ -2,19 +2,19 @@
 '''
 The Delta Arm Model
 '''
-
+import os
 import pybullet as p
 import numpy as np
 
 class Delta_Robot_Model:
 
-  def __init__(self, urdfRootPath, urdf_name, base_position = [0,0,0]):
-    self.urdfRootPath = urdfRootPath
+  def __init__(self, urdf_name, base_position = [0,0,0]):
     self.reset(urdf_name, base_position)
 
   def reset(self,urdf_name, base_position):
     self.buildParamLists()
-    self.model_unique_id = p.loadURDF(self.urdfRootPath + "/" + urdf_name , basePosition=base_position, useFixedBase=True)
+    urdf_name = os.path.join(os.path.dirname(__file__), urdf_name)
+    self.model_unique_id = p.loadURDF(urdf_name, basePosition=base_position, useFixedBase=True)
     self.buildLookups()
     self.resetLinkFrictions(lateral_friction_coefficient=0)
     self.resetJointsAndMotors()
