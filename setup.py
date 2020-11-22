@@ -1,11 +1,23 @@
 from setuptools import setup
-
+from pathlib import Path
 setup(
-    name="delta_robot_trampoline",
-    version='0.1.5',
-    packages=["delta_robot_trampoline"],
-    package_data={'delta_robot_trampoline': [
+    name="gym_delta_robot_trampoline",
+    author="Rico Ruotong Jia",
+    author_email="ruotongjia2020@u.northwestern.edu",
+    version='0.0.1',
+    description="An OpenAI Gym Env for Delta Robot",
+    long_description=Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/RicoJia/gym-delta-robot-trampoline",
+    packages=["gym_delta_robot_trampoline"],
+    package_data={'gym_delta_robot_trampoline': [
     'resources/*']},
-    python_requires='>=3',
-    install_requires=['gym', 'pybullet', 'numpy']
+    install_requires=['gym', 'pybullet', 'numpy', "matplotlib"],
+    classifiers=[
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6'
 )
+

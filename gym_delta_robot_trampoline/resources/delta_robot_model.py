@@ -8,12 +8,12 @@ import numpy as np
 
 class Delta_Robot_Model:
 
-  def __init__(self, urdf_name, base_position = [0,0,0]):
-    self.reset(urdf_name, base_position)
+  def __init__(self,base_position = [0,0,0]):
+    self.reset( base_position)
 
-  def reset(self,urdf_name, base_position):
+  def reset(self, base_position):
     self.buildParamLists()
-    urdf_name = os.path.join(os.path.dirname(__file__), urdf_name)
+    urdf_name = os.path.join(os.path.dirname(__file__), "delta_robot_pybullet.urdf")
     self.model_unique_id = p.loadURDF(urdf_name, basePosition=base_position, useFixedBase=True)
     self.buildLookups()
     self.resetLinkFrictions(lateral_friction_coefficient=0)
@@ -31,10 +31,10 @@ class Delta_Robot_Model:
       self.upper_leg_names = {1: "upper_leg_1", 2: "upper_leg_2", 3: "upper_leg_3"}
       self.upper_leg_length = 0.368
       self.leg_pos_on_end_effector = {"upper_leg_1": 0.0, "upper_leg_2": 2.0*np.pi/3.0, "upper_leg_3": 4.0*np.pi/3.0} #angular positions of upper legs on the platform
-      self.after_spring_joint_vals = {"theta_1": 0.0, "theta_2": 0.0, "theta_3": 0.0} #name of the after_spring_joint: joint_initial_value
+      self.after_spring_joint_vals = {"theta_1": -0, "theta_2": -0, "theta_3": -0} #name of the after_spring_joint: joint_initial_value
 
       self.end_effector_name = "platform_link"
-      self.end_effector_home_vals = {"x": 0.0, "y": 0.0, "z": 0.095}
+      self.end_effector_home_vals = {"x": 0.0, "y": 0.0, "z": 0.087}
 
       # joints to be initialized
       self.init_joint_values = {**self.after_spring_joint_vals, **self.end_effector_home_vals}
@@ -152,41 +152,8 @@ class Delta_Robot_Model:
 
   def getEndEffectorStates(self):
       link_state = p.getLinkState(bodyUniqueId = self.model_unique_id, linkIndex = self.linkNameToID[self.end_effector_name], computeLinkVelocity=1)
-      link_pos = link_state[0]
-      link_vel = link_state[6]
+      link_pos = list(link_state[0])
+      link_vel = list(link_state[6])
       return (link_pos, link_vel)
-
-  # def executeAllMotorPosCommands(self):
-  #   """
-  #   This is a helper function that executes all motor position commands in self.motorDict
-  #   """
-  #   for name, value in self.motorDict.items():
-  #     self.setMotorValueByName(name, value)
-
-#   def returnJointStateMsg(self):
-#       """
-#       Publish joint states. Note that effort is the motor torque applied during the last stepSimulation.
-#       :return:
-#       """
-#       joint_state_msg = JointState()
-#       for joint_name in self.jointNameToId.keys():
-#           joint_state = p.getJointState(bodyUniqueId = self.model_unique_id, jointIndex=self.jointNameToId[joint_name])
-#           joint_state_msg.name.append(joint_name)
-#           joint_state_msg.position.append(joint_state[0])
-#           joint_state_msg.velocity.append(joint_state[1])
-#           joint_state_msg.effort.append(joint_state[3])
-#       return joint_state_msg
-#
-#   def updateJointStates(self, name_ls, position_ls):
-#       """
-#       The core function to update joint states.  If a joint name is not for an actuated joint, it will be skipped without notice.
-#       :param name_ls: (list-like) names of joints to be updated.
-#       :param position_ls: (list-like) new positions of joints
-#       """
-#       for i in range(len(name_ls)):
-#           if name_ls[i] in self.motorDict:
-#               self.motorDict[name_ls[i]] = position_ls[i]
-
-
 
 
