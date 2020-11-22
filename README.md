@@ -12,14 +12,14 @@ The trampoline bounces a ball using a delta arm trained by DDPG! We also have in
 
 ### Links 
  - Github [https://github.com/RicoJia/gym-delta-robot-trampoline](https://github.com/RicoJia/gym-delta-robot-trampoline)
- - Pypi [https://pypi.org/project/gym-delta-robot-trampoline/](https://pypi.org/project/gym-delta-robot-trampoline/)
+ - **NOT READY** Pypi [https://pypi.org/project/gym-delta-robot-trampoline/](https://pypi.org/project/gym-delta-robot-trampoline/)
 
 ### Install
-Install with `pip`:
+**NOT READY** Install with `pip`:
 
     pip install gym-delta-robot-trampoline
     
-Or, install from source:
+**READY** Or, install from source:
 
     git clone https://github.com/RicoJia/gym-delta-robot-trampoline
     cd gym-delta-robot-trampoline
