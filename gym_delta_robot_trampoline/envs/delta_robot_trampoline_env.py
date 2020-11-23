@@ -7,21 +7,23 @@ import os
 import pybullet_data
 
 """
-Action (torque) array: [theta_1, theta_2, theta_3]
-Observation (1,18) array: [3 joint_positions, 3 joint velocities, 3 eef positions, 3 eef velocities, 3
+Action space (1,3) : [theta_1_torque, theta_2_torque, theta_3_torque]
+Observation space (1,18) : [3 joint_positions, 3 joint velocities, 3 eef positions, 3 eef velocities, 3
       3 ball positions, 3 ball velocities]
 """
+
+FAIL_ALTITUDE = 0.20
+BONUS_ALTITUDE_DIFF = 0.06
+MAX_STEP_NUM = 8000
 
 class DeltaRobotTrampolineEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
         self.step_counter = 0
-        #TODO
-        # self.client = p.connect(p.DIRECT)
 
         self.client = p.connect(p.GUI)
-        p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.55,-0.35,0.2])
+        p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.05,-0.35,0.2])
 
         self.action_space = gym.spaces.box.Box(
             low=np.array([-100] * 3),
@@ -35,22 +37,22 @@ class DeltaRobotTrampolineEnv(gym.Env):
                            5, 5, 5, 50, 50, 50, \
                            20, 20, 20, 50, 50, 50]))
         self.np_random, _ = gym.utils.seeding.np_random()
-        # self.reset()
-        # trivial tracking variables
-        self.rendered_img = None
-        self.step_limit = 2000
-        self.height_thre = 0.15
-        self.above_height_thre = False
+
+        # tracking variables
+        self.episode_num = 0
+
+        #enable visualization
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 
     def reset(self):
         p.resetSimulation()
-        #TODO
-        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0) # we will enable rendering after we loaded everything
 
+        # episode params
         self.step_counter = 0
+        self.reward = 0
+        self.above_BONUS_ALTITUDE_DIFF = False
+
         p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"))  #loads from the root pybullet library
-        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0) # we will enable rendering after we loaded everything
         p.setGravity(0,0,-10)
         p.setRealTimeSimulation(0)
 
@@ -64,43 +66,48 @@ class DeltaRobotTrampolineEnv(gym.Env):
                 self.omnid_simulator.detachBallFromRobot() #now we can let the ball move freely!
                 initialized = True
             p.stepSimulation()
-        print("Env has been reset")
+
         self.observation = self.omnid_simulator.updateStates().astype(np.float32)
-        #TODO
-        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
         return self.observation
 
     def step(self, action):
-        # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
         self.omnid_simulator.applyJointTorque({"theta_1": action[0], \
                                                "theta_2": action[1], \
                                                "theta_3": action[2]})
         p.stepSimulation()
         self.step_counter += 1
-        print(self.step_counter)
         self.observation = self.omnid_simulator.updateStates()
 
         #z < 0, -100. else, if get over height threshold, we get 100.
         z= self.observation[14]
-        if z < 0.10:
-            reward = -100
+        if z < FAIL_ALTITUDE:
+            reward = -25
             done = True
-        elif z >= self.height_thre:
-            done = False
-            if not self.above_height_thre:
-                reward = 10
-                self.above_height_thre = True
-                self.step_counter = 0
-            else:
-                reward = 0
         else:
-            if self.above_height_thre:
-                self.above_height_thre = False
-            reward = 0
-            done = False
+            height_diff = z - self.observation[8]
+            if height_diff >= BONUS_ALTITUDE_DIFF:
+                done = False
+                if not self.above_BONUS_ALTITUDE_DIFF:
+                    reward = 50
+                    self.above_BONUS_ALTITUDE_DIFF = True
+                    self.step_counter = 0
+                else:
+                    reward = 0
+            else:
+                if self.above_BONUS_ALTITUDE_DIFF:
+                    self.above_BONUS_ALTITUDE_DIFF = False
+                reward = 0
+                done = False
 
-        if self.step_counter == self.step_limit:
+        self.reward += reward
+
+        if self.step_counter == MAX_STEP_NUM:
             done = True
+
+        if done:
+            self.episode_num += 1
+            print("step count: ", self.step_counter, "z: ", z)
+            print("Episode: ", self.episode_num, " total reward: ", self.reward)
 
         info = {"eef position: ": self.observation[6:9], \
                 "ball position: ": self.observation[12:15]}
@@ -109,34 +116,9 @@ class DeltaRobotTrampolineEnv(gym.Env):
 
 
     def render(self,  mode='human'):
+        """ Render is an interface function. Since we are using GUI, we do not need this.
+        We use GUI because computing view matrices and projection matrices is much slower. """
         pass
-        #This is pretty slow
-        # if self.rendered_img is None:
-        #     self.rendered_img = plt.imshow(np.zeros((720, 960, 4)))
-        # view_matrix = p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=[0.7,0,0.05],
-        #                                                   distance=2.0,
-        #                                                   yaw=90,
-        #                                                   pitch=-10,
-        #                                                   roll=0,
-        #                                                   upAxisIndex=2)
-        # proj_matrix = p.computeProjectionMatrixFOV(fov=60,
-        #                                              aspect=float(960) /720,
-        #                                              nearVal=0.1,
-        #                                              farVal=100.0)
-        # (_, _, px, _, _) = p.getCameraImage(width=960,
-        #                                       height=720,
-        #                                       viewMatrix=view_matrix,
-        #                                       projectionMatrix=proj_matrix,
-        #                                       renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        #
-        # rgb_array = np.array(px, dtype=np.uint8)
-        # rgb_array = np.reshape(rgb_array, (720,960, 4))
-        # self.rendered_img.set_data(rgb_array)
-        # if plt.fignum_exists(1):
-        #     plt.draw()
-            # plt.pause(.0001)
-
-
 
 
     def close(self):

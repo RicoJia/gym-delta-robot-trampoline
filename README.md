@@ -29,3 +29,7 @@ The trampoline bounces a ball using a delta arm trained by DDPG! We also have in
 See the environment, in the root of the package:
  
      python3 main.py
+You can interact with the environment by clicking and dragging, but note that our simulation is running much 
+faster than real time, so you might not see the ball falling to the ground before the episode ends, or 
+you might see a higher reward than expected due to small vibrations in our mouse dragging motion.   
+
