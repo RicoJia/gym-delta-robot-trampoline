@@ -32,8 +32,8 @@ def main():
     action_dim = 3
     max_action = 100
     batch_size = 10
-    cov_scale = 0.1
-    eval_freq = 8000
+    cov_scale = 0.5
+    eval_freq = 10
     episode_reward = 0
     episode_timesteps = 0
     episode_num = 0
@@ -54,19 +54,20 @@ def main():
     # Evaluate untrained policy
     # TODO
     evaluations = [eval_policy(policy, env, 0)]
+    evaluated = True
 
     state, done = env.reset(), False
 
     while True:
         episode_timesteps += 1
         # Select action randomly or according to policy
-        if episode_num < random_exploration_ep:
-            action = env.action_space.sample()
-        else:
-            action = (
-                policy.select_action(np.array(state))
-                + np.random.normal(0, max_action * cov_scale, size=action_dim)
-            ).clip(-max_action, max_action)
+        # if episode_num < random_exploration_ep:
+        #     action = env.action_space.sample()
+        # else:
+        action = (
+            policy.select_action(np.array(state))
+            + np.random.normal(0, max_action * cov_scale, size=action_dim)
+        ).clip(-max_action, max_action)
 
         # Perform action
         next_state, reward, done, _ = env.step(action)
@@ -92,12 +93,16 @@ def main():
             episode_num += 1
 
         # Evaluate episode
-        if episode_timesteps+1 % eval_freq == 0:
+        if episode_num % eval_freq == 0 and not evaluated:
             evaluations.append(eval_policy(policy, env, 1))
             #np.save ?
             np.save(f"./results/evaluations", evaluations)
             #save model ?
             policy.save(f"./models/model")
+            evaluated = True
+        elif episode_num % eval_freq != 0:
+            evaluated = False
+
 
 
 if __name__ == '__main__':
