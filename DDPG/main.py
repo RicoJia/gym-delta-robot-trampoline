@@ -92,7 +92,7 @@ def main():
             episode_num += 1
 
         # Evaluate episode
-        if episode_timesteps % eval_freq == 0:
+        if episode_timesteps+1 % eval_freq == 0:
             evaluations.append(eval_policy(policy, env, 1))
             #np.save ?
             np.save(f"./results/evaluations", evaluations)
