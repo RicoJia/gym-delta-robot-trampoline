@@ -8,7 +8,7 @@ from DDPG import DDPG
 
 # Runs policy for X episodes and returns average reward
 # A fixed seed is used for the eval environment
-def eval_policy(policy, eval_env, seed, eval_episodes = 1):
+def eval_policy(policy, eval_env, seed, eval_episodes = 3):
     eval_env.seed(seed + 100)
     avg_reward = 0
     for i in range(eval_episodes):
@@ -33,7 +33,7 @@ def main():
     max_action = 100
     batch_size = 10
     cov_scale = 0.1
-    eval_freq = 50
+    eval_freq = 8000
     episode_reward = 0
     episode_timesteps = 0
     episode_num = 0
@@ -92,7 +92,7 @@ def main():
             episode_num += 1
 
         # Evaluate episode
-        if episode_num % eval_freq == 0:
+        if episode_timesteps % eval_freq == 0:
             evaluations.append(eval_policy(policy, env, 1))
             #np.save ?
             np.save(f"./results/evaluations", evaluations)

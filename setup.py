@@ -4,7 +4,7 @@ setup(
     name="gym_delta_robot_trampoline",
     author="Rico Ruotong Jia",
     author_email="ruotongjia2020@u.northwestern.edu",
-    version='0.1.3',
+    version='0.1.4',
     description="An OpenAI Gym Env for Delta Robot",
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",

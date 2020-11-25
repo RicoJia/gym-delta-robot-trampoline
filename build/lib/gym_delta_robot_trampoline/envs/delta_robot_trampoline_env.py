@@ -14,16 +14,18 @@ Observation space (1,18) : [3 joint_positions, 3 joint velocities, 3 eef positio
 
 FAIL_ALTITUDE = 0.20
 BONUS_ALTITUDE_DIFF = 0.30
-MAX_STEP_NUM = 8000
+MAX_STEP_NUM = 800
 
 class DeltaRobotTrampolineEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
         self.step_counter = 0
+        #TODO
+        self.client = p.connect(p.DIRECT)
 
-        self.client = p.connect(p.GUI)
-        p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.05,-0.35,0.2])
+        # self.client = p.connect(p.GUI)
+        # p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.05,-0.35,0.2])
 
         self.action_space = gym.spaces.box.Box(
             low=np.array([-100] * 3),
@@ -38,18 +40,15 @@ class DeltaRobotTrampolineEnv(gym.Env):
                            20, 20, 20, 50, 50, 50]))
         self.np_random, _ = gym.utils.seeding.np_random()
 
-        # tracking variables
-        self.episode_num = 0
-
         #enable visualization
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+        #TODO
+        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 
     def reset(self):
         p.resetSimulation()
 
         # episode params
         self.step_counter = 0
-        self.reward = 0
         self.above_BONUS_ALTITUDE_DIFF = False
 
         p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"))  #loads from the root pybullet library
@@ -71,7 +70,6 @@ class DeltaRobotTrampolineEnv(gym.Env):
         return self.observation
 
     def step(self, action):
-
         self.omnid_simulator.applyJointTorque({"theta_1": action[0], \
                                                "theta_2": action[1], \
                                                "theta_3": action[2]})
@@ -99,14 +97,9 @@ class DeltaRobotTrampolineEnv(gym.Env):
                     self.above_BONUS_ALTITUDE_DIFF = False
                 reward = 0
                 done = False
-        self.reward += reward
 
         if self.step_counter == MAX_STEP_NUM:
             done = True
-
-        if done:
-            self.episode_num += 1
-            print("Episode: ", self.episode_num, " total reward: ", self.reward)
 
         info = {"eef position: ": self.observation[6:9], \
                 "ball position: ": self.observation[12:15]}
