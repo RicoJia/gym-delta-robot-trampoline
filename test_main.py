@@ -1,12 +1,12 @@
 import gym
-# import torch
-# from agent import TRPOAgent
+import torch
+from agent import Agent
 import gym_delta_robot_trampoline
 import time
 
 def main():
-    # nn = torch.nn.Sequential(torch.nn.Linear(8, 64), torch.nn.Tanh(),
-    #                          torch.nn.Linear(64, 2))
+    nn = torch.nn.Sequential(torch.nn.Linear(8, 64), torch.nn.Tanh(),
+                             torch.nn.Linear(64, 2))
     # agent = TRPOAgent(policy=nn)
     #
     # agent.load_model("agent.pth")
