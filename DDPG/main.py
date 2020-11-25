@@ -32,7 +32,7 @@ def main():
     action_dim = 3
     max_action = 100
     batch_size = 10
-    cov_scale = 0.5
+    cov_scale = 0.05
     eval_freq = 10
     episode_reward = 0
     episode_timesteps = 0
@@ -61,13 +61,13 @@ def main():
     while True:
         episode_timesteps += 1
         # Select action randomly or according to policy
-        # if episode_num < random_exploration_ep:
-        #     action = env.action_space.sample()
-        # else:
-        action = (
-            policy.select_action(np.array(state))
-            + np.random.normal(0, max_action * cov_scale, size=action_dim)
-        ).clip(-max_action, max_action)
+        if episode_num < random_exploration_ep:
+            action = env.action_space.sample()
+        else:
+            action = (
+                policy.select_action(np.array(state))
+                + np.random.normal(0, max_action * cov_scale, size=action_dim)
+            ).clip(-max_action, max_action)
 
         # Perform action
         next_state, reward, done, _ = env.step(action)
