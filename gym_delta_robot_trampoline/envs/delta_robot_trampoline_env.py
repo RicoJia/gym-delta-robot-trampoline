@@ -13,7 +13,7 @@ Observation space (1,18) : [3 joint_positions, 3 joint velocities, 3 eef positio
 """
 
 FAIL_ALTITUDE = 0.20
-BONUS_ALTITUDE_DIFF = 0.30
+BONUS_ALTITUDE_DIFF = 0.16
 MAX_STEP_NUM = 800
 
 class DeltaRobotTrampolineEnv(gym.Env):
@@ -92,17 +92,18 @@ class DeltaRobotTrampolineEnv(gym.Env):
                     self.step_counter = 0
                 else:
                     reward = 0
-            else:
+            else:   #ball is above the platform but lower than the relative height threshold
                 if self.above_BONUS_ALTITUDE_DIFF:
                     self.above_BONUS_ALTITUDE_DIFF = False
-                reward = 0
+                reward = -0.1
                 done = False
 
-        if self.step_counter == MAX_STEP_NUM:
+        if self.step_counter >= MAX_STEP_NUM:
             done = True
 
         info = {"eef position: ": self.observation[6:9], \
                 "ball position: ": self.observation[12:15]}
+
 
         return self.observation.astype(np.float32), reward, done, info
 

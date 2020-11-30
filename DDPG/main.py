@@ -4,6 +4,7 @@ import numpy as np
 import gym_delta_robot_trampoline
 
 import utils
+import os
 from DDPG import DDPG
 
 # Runs policy for X episodes and returns average reward
@@ -30,14 +31,14 @@ def main():
                              torch.nn.Linear(64, 2))
     state_dim = 18
     action_dim = 3
-    max_action = 100
+    max_action = 20
     batch_size = 10
-    cov_scale = 0.05
+    cov_scale = 0.3
     eval_freq = 10
     episode_reward = 0
     episode_timesteps = 0
     episode_num = 0
-    random_exploration_ep = 20
+    random_exploration_ep = 5
 
     env_name = 'delta_robot_trampoline-v0'
 
@@ -53,15 +54,17 @@ def main():
 
     # Evaluate untrained policy
     # TODO
-    evaluations = [eval_policy(policy, env, 0)]
+    evaluations = list(np.load(os.getcwd()+"/results/evaluations.npy")) + [eval_policy(policy, env, 0)]
     evaluated = True
 
     state, done = env.reset(), False
 
     while True:
         episode_timesteps += 1
+        #TODO
         # Select action randomly or according to policy
-        if episode_num < random_exploration_ep:
+        # if episode_num < random_exploration_ep:
+        if (episode_timesteps+1)%random_exploration_ep == 0:
             action = env.action_space.sample()
         else:
             action = (
@@ -77,6 +80,7 @@ def main():
         replay_buffer.add(state, action, next_state, reward, done_bool)
         state = next_state  #why update your states right here?
         episode_reward += reward
+
 
         #TODO
         # Train agent after collecting sufficient data
@@ -95,9 +99,7 @@ def main():
         # Evaluate episode
         if episode_num % eval_freq == 0 and not evaluated:
             evaluations.append(eval_policy(policy, env, 1))
-            #np.save ?
             np.save(f"./results/evaluations", evaluations)
-            #save model ?
             policy.save(f"./models/model")
             evaluated = True
         elif episode_num % eval_freq != 0:
