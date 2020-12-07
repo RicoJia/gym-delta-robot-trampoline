@@ -22,10 +22,10 @@ class DeltaRobotTrampolineEnv(gym.Env):
     def __init__(self):
         self.step_counter = 0
         #TODO
-        self.client = p.connect(p.DIRECT)
+        # self.client = p.connect(p.DIRECT)
 
-        # self.client = p.connect(p.GUI)
-        # p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.05,-0.35,0.2])
+        self.client = p.connect(p.GUI)
+        p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.05,-0.35,0.2])
 
         self.action_space = gym.spaces.box.Box(
             low=np.array([-100] * 3),
@@ -42,7 +42,7 @@ class DeltaRobotTrampolineEnv(gym.Env):
 
         #enable visualization
         #TODO
-        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 
     def reset(self):
         p.resetSimulation()

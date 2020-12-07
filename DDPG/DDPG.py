@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import os
 
 
 device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
@@ -48,7 +49,7 @@ class DDPG(object):
 	def __init__(self, state_dim, action_dim, max_action, discount=0.99, tau=0.001):
 		self.actor = Actor(state_dim, action_dim, max_action).to(device)
 		self.actor_target = copy.deepcopy(self.actor)	#?
-		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=1e-4)
+		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=1e-4, weight_decay=1e-2)
 
 		self.critic = Critic(state_dim, action_dim).to(device)
 		self.critic_target = copy.deepcopy(self.critic)
@@ -105,10 +106,14 @@ class DDPG(object):
 		torch.save(self.actor_optimizer.state_dict(), filename + "_actor_optimizer")
 
 	def load(self, filename):
-		self.critic.load_state_dict(torch.load(filename + "_critic", map_location=device))
-		self.critic_optimizer.load_state_dict(torch.load(filename + "_critic_optimizer", map_location=device))
-		self.critic_target = copy.deepcopy(self.critic)
+		if self.is_non_zero_file(filename + "_critic"):
+			self.critic.load_state_dict(torch.load(filename + "_critic", map_location=device))
+			self.critic_optimizer.load_state_dict(torch.load(filename + "_critic_optimizer", map_location=device))
+			self.critic_target = copy.deepcopy(self.critic)
+		if self.is_non_zero_file(filename + "_actor"):
+			self.actor.load_state_dict(torch.load(filename + "_actor", map_location=device))
+			self.actor_optimizer.load_state_dict(torch.load(filename + "_actor_optimizer", map_location=device))
+			self.actor_target = copy.deepcopy(self.actor)
 
-		self.actor.load_state_dict(torch.load(filename + "_actor", map_location=device))
-		self.actor_optimizer.load_state_dict(torch.load(filename + "_actor_optimizer", map_location=device))
-		self.actor_target = copy.deepcopy(self.actor)
+	def is_non_zero_file(self, fpath):
+		return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
