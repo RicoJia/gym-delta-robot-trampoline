@@ -49,7 +49,7 @@ To see a demo of the model, from the root of the package,
     cd DDPG
     python3 main.py -t 
     
-This model can bounce the ball 10 times!
+This model can bounce the ball 8 times!
 
 <img src="media/ddpg.gif" width="200"/>
 
