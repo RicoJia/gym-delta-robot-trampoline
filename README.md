@@ -3,6 +3,9 @@
 Authors: Rico Ruotong Jia(ruotongjia2020@u.northwestern.edu), Yipeng Pan 
 
 The trampoline bounces a ball using a delta arm trained by DDPG! We also have included a PyBullet + OpenAI Gym environment of a Delta_Arm.  
+What the robot gets to control is the torque (not the position) of its 3 leg joints, near the base at the bottom. 
+This is much sophisticated than directly controlling the position of each joint! But in real life, the direct
+output from a motor is always torque. 
 
 ![](media/model_1.png)
 
