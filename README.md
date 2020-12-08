@@ -56,4 +56,6 @@ This model can bounce the ball 8 times!
 
 <img src="media/ddpg.gif" width="200"/>
 
-
+### Report
+There is also a report that reveals more details about the design reasoning of project. See [here](media/report.pdf
+) 
