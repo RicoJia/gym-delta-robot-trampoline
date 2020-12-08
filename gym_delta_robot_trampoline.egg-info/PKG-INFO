@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: gym-delta-robot-trampoline
-Version: 0.1.4
+Version: 0.1.7
 Summary: An OpenAI Gym Env for Delta Robot
 Home-page: https://github.com/RicoJia/gym-delta-robot-trampoline
 Author: Rico Ruotong Jia
@@ -24,7 +24,7 @@ Description: # Gym Delta Robot Trampoline
         ### Install
         Install with `pip`:
         
-            pip install gym-delta-robot-trampoline
+            pip3 install gym_delta_robot_trampoline
             
         Or, install from source:
         

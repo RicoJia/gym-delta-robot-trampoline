@@ -7,6 +7,7 @@ import utils
 import os
 from DDPG import DDPG
 import time
+import getopt, sys
 
 # Runs policy for X episodes and returns average reward
 # A fixed seed is used for the eval environment
@@ -30,20 +31,38 @@ def eval_policy(policy, eval_env, seed, eval_episodes = 3, test=False):
 def is_non_zero_file(fpath):
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
 
+def checkCommandLine(argv):
+    test_model = None
+    try:
+        opts, args = getopt.getopt(argv,"ht",["help", "test"])
+    except getopt.GetoptError:
+        print ('Please see -h or --help for help')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            print ('-t or --test is for testing the PyBullet model with a slider bar. If the input arg is empty, we are going to launch the environment')
+            sys.exit(1)
+        elif opt in ("-t", "--test"):
+            test_model = True
+        else:
+            test_model = False
+    return test_model
+
 def main():
     nn = torch.nn.Sequential(torch.nn.Linear(8, 64), torch.nn.Tanh(),
                              torch.nn.Linear(64, 2))
-    test = True
+    test = checkCommandLine(sys.argv[1:])
     state_dim = 18
     action_dim = 3
     max_action = 20
     batch_size = 20
-    cov_scale = 0.3
+    cov_scale = 0.0
     eval_freq = 10
     episode_reward = 0
     episode_timesteps = 0
     episode_num = 0
     random_exploration_ep = 100
+    train_timestep_thre = 10
 
     env_name = 'delta_robot_trampoline-v0'
 
@@ -72,14 +91,14 @@ def main():
                 episode_timesteps += 1
                 #TODO
                 # Select action randomly or according to policy
-                if episode_num < random_exploration_ep:
-                # if (episode_timesteps+1)%random_exploration_ep == 0:
-                    action = env.action_space.sample()
-                else:
-                    action = (
-                        policy.select_action(np.array(state))
-                        + np.random.normal(0, max_action * cov_scale, size=action_dim)
-                    ).clip(-max_action, max_action)
+                # if episode_num < random_exploration_ep:
+                # # if (episode_timesteps+1)%random_exploration_ep == 0:
+                #     action = env.action_space.sample()
+                # else:
+                action = (
+                    policy.select_action(np.array(state))
+                    + np.random.normal(0, max_action * cov_scale, size=action_dim)
+                ).clip(-max_action, max_action)
 
                 # Perform action
                 next_state, reward, done, _ = env.step(action)
@@ -91,9 +110,9 @@ def main():
                 episode_reward += reward
 
 
-                #TODO
+                #TODO ???
                 # Train agent after collecting sufficient data
-                if episode_num >= random_exploration_ep:
+                if episode_timesteps >= train_timestep_thre:
                     policy.train(replay_buffer, batch_size)
 
                 if done:

@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import os
 
 
-device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 
 # Implementation of Deep Deterministic Policy Gradients (DDPG)
@@ -46,22 +46,21 @@ class Critic(nn.Module):
 		return self.l3(q)
 
 class DDPG(object):
-	def __init__(self, state_dim, action_dim, max_action, discount=0.99, tau=0.001):
+	def __init__(self, state_dim, action_dim, max_action, discount=0.99, tau=0.1):
 		self.actor = Actor(state_dim, action_dim, max_action).to(device)
 		self.actor_target = copy.deepcopy(self.actor)	#?
-		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=1e-4, weight_decay=1e-2)
+		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=1e-6, weight_decay=1e-2, amsgrad=True)
 
 		self.critic = Critic(state_dim, action_dim).to(device)
 		self.critic_target = copy.deepcopy(self.critic)
-		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), weight_decay=1e-2)
+		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=1e-6, weight_decay=1e-2)
 
 		self.discount = discount
 		self.tau = tau
 
-
 	def select_action(self, state):
-		state = torch.FloatTensor(state.reshape(1, -1)).to(device)	#why to device?
-		return self.actor(state).cpu().data.numpy().flatten()		#why actor(state), nn.module, forward? why .cpu()?
+		state = torch.FloatTensor(state.reshape(1, -1)).to(device)	
+		return self.actor(state).cpu().data.numpy().flatten()	    
 
 	def train(self, replay_buffer, batch_size=64):
 		# Sample replay buffer
@@ -72,15 +71,16 @@ class DDPG(object):
 		target_Q = reward + (not_done * self.discount * target_Q).detach()	#why detach()?
 
 		# Get current Q estimate
+
 		current_Q = self.critic(state, action)
 
 		# Compute critic loss
 		critic_loss = F.mse_loss(current_Q, target_Q)
 
 		# Optimize the critic
-		self.critic_optimizer.zero_grad()	#why zero gradient? do this every time before backward()?
+		self.critic_optimizer.zero_grad()	#zero out your gradient when starting to calculate it. 
 		critic_loss.backward()
-		self.critic_optimizer.step()	#update the network?
+		self.critic_optimizer.step()	#update the network
 
 		# Compute actor loss
 		actor_loss = -self.critic(state, self.actor(state)).mean()	#why mean?

@@ -1,6 +1,5 @@
 import gym
 import torch
-from agent import Agent
 import gym_delta_robot_trampoline
 import time
 
