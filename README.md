@@ -50,6 +50,7 @@ To see a demo of the model, from the root of the package,
     python3 main.py -t 
     
 This model can bounce the ball 10 times!
+
 <img src="media/ddpg.gif" width="200"/>
 
 
